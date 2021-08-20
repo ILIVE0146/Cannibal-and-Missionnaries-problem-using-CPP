@@ -1,6 +1,12 @@
-// *Cannibal and Missionnaries
+// * Cannibal and Missionnaries
 // *cannibals shouldnt out number the missionnaries
-// TODO: change positon of noew nodes if that data exists in pre-existing nodes
+/*
+
+ This code uses Breadth First Search algorithm to solve the Cannibal and Missionnaries
+ using BFS we discover new nodes where each node represents a posibility of occuring a change of number of Cannibal and/or Missionnaries from it's parent node.
+
+ */
+//TODO: Find the shortest path to goal
 #include <iostream>
 #include <vector>
 #include <set>
@@ -13,7 +19,7 @@ class Node{
 public:
     int position;
     Boatposition bp;
-    std::pair<List/*cannibals*/,List/*missionaries*/> left,right; // each state has 2 thingys, each representing number of cannicals and massionaries on each side respectively
+    std::pair<List/*cannibals*/,List/*missionaries*/> left,right; // each node in graph has 2, each representing number of cannicals and massionaries on each side respectively
     bool isConditionSatisfied = true;
     bool checkCondition(){
         //checking condition on left side of the bank
@@ -28,11 +34,12 @@ public:
     }
 };
 
-///\brief creates a new node and returns it
+///\brief creates a new node and if the data of the given node exists in graphNodes, the newly created now will have same position else, it initializes a unique position to it and returns it
 ///\brief List is an enum {zero, one, two, three}
 ///\param boatPosition Boatposition enum
 ///\param left std::pair<List,List>
 ///\param right std::pair<List,List>
+///\param graphNodes std::vector<Node>&
 ///\return Node class's object
 Node createNode(Boatposition bp, std::pair<List,List> left,std::pair<List,List> right, std::vector<Node>& graphNodes ){
     Node tempNode;
@@ -63,6 +70,7 @@ class Graph{
 public:
     std::vector<Node> nodes;
     std::set<std::pair<int,int>> edgesList; // example {0,1} defines a edge between 0 node to 1 node
+
     /// \brief function to push a new node
     /// \param ver Node class
     /// \param edglist std::vector<std::pair<int,int>> it's connected edge lists
@@ -101,7 +109,7 @@ public:
 
 int main(){
     Graph myGraph;
-    std::vector<int> visited , queue , outputQueue ;
+    std::vector<int> visited , queue ;
     
     {
         Node startNode = createNode(right,{zero,zero},{three,three} , myGraph.nodes);
@@ -131,18 +139,19 @@ int main(){
                     List right =List(int(n.right.first) - 2);
                     List left =List(int(n.left.first) + 2);
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), {left, n.left.second },{right , n.right.second} , myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), {left, n.left.second },{right , n.right.second} , myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                     
                 }
@@ -151,18 +160,19 @@ int main(){
                     List right = List(int(n.right.second) - 2);
                     List left = List(int(n.left.second) + 2);
                     
-                    Node noew = createNode(Boatposition(!bool(n.bp)), {n.left.first, left },{n.right.first , right}, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), {n.left.first, left },{n.right.first , right}, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
                     bool ismatched = false;
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                 }
                 if(n.right.first >= 1 && n.right.second >= 1){
@@ -171,18 +181,19 @@ int main(){
                     right = {  List(int(n.right.first) - 1) , List(int(n.right.second) - 1)};
                     left = {  List(int(n.left.first) + 1) , List(int(n.left.second) + 1)};
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), left, right , myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), left, right , myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                 }
                 if(n.right.first >= 1){
@@ -191,18 +202,19 @@ int main(){
                     right = {  List(int(n.right.first) - 1) , List(int(n.right.second)) };
                     left = {  List(int(n.left.first) + 1) , List(int(n.left.second)) };
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                 }
                 if(n.right.second >= 1){
@@ -211,39 +223,42 @@ int main(){
                     right = {  List(int(n.right.first) ) , List(int(n.right.second)- 1) };
                     left = {  List(int(n.left.first) ) , List(int(n.left.second)+ 1) };
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
 
                 }
             }else{
+                // new node creation condition if the current boat position is on the Left side of the river.
                 if(n.left.first >= 2){
                     //checking if i can move 2 canibals at once or not
                     List first =List(int(n.left.first) - 2);
                     List second =List(int(n.right.first) + 2);
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), {first, n.left.second },{second , n.right.second}, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), {first, n.left.second },{second , n.right.second}, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                 }
                 if(n.left.second >= 2){
@@ -251,18 +266,19 @@ int main(){
                     List first = List(int(n.left.second) - 2);
                     List second = List(int(n.right.second) + 2);
                     
-                    Node noew = createNode(Boatposition(!bool(n.bp)), {n.left.first, first },{n.right.first , second}, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), {n.left.first, first },{n.right.first , second}, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                 }
                 if(n.left.first >= 1 && n.right.second >= 1){
@@ -271,18 +287,19 @@ int main(){
                     left = {  List(int(n.left.first) - 1) , List(int(n.left.second) - 1)};
                     right = {  List(int(n.right.first) + 1) , List(int(n.right.second) + 1)};
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                 }
                 if(n.left.first >= 1){
@@ -291,18 +308,19 @@ int main(){
                     left = {  List(int(n.left.first) - 1) , List(int(n.left.second)) };
                     right = {  List(int(n.right.first) + 1) , List(int(n.right.second)) };
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
                 }
                 if(n.left.second >= 1){
@@ -311,18 +329,19 @@ int main(){
                     left = {  List(int(n.left.first) ) , List(int(n.left.second)- 1) };
                     right = {  List(int(n.right.first) ) , List(int(n.right.second)+ 1) };
 
-                    Node noew = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
-                    myGraph.addEdge(n,noew);
+                    Node newNodes = createNode(Boatposition(!bool(n.bp)), left, right, myGraph.nodes );
+                    myGraph.addEdge(n,newNodes);
+                    // Checking if the newNode is in visited vector or not, if they match, we dont push the newNode into queue Vector
                     bool ismatched = false;
                     for (auto &&vecitr : visited)
                     {
-                        if(vecitr == noew.position){
+                        if(vecitr == newNodes.position){
                             ismatched = true;
                             break;
                         }
                     }
                     if(ismatched == false){
-                        queue.push_back(noew.position);
+                        queue.push_back(newNodes.position);
                     }
 
                 }
@@ -343,9 +362,19 @@ int main(){
             // }
         }
         visited.push_back(n.position);
-        outputQueue.push_back(queue.front());
         queue.erase(queue.begin());
     }
-    auto x = 40000.22;
+
+    for (auto &&vecitr : myGraph.nodes)
+    {
+        // Checking if we reached goal state or not, which is cannibals and Missionnaries each 3 on the left side of the bank
+        if(vecitr.left.first/*cannibals on left side*/ == List(3) && vecitr.left.second/*Missionnaries on left side*/ == List(3) ){
+            //we reached our goal state
+            std::cout<<"Goal State of transporting cannibals and Missionnaries each 3 to the left side of the bank reached with Node position in graph "<<vecitr.position<<std::endl;
+        }
+
+        //TODO: use A* algorithm with heuristic = 1 or dijkstra's algorithm (same thing) to find the shortest path to reach the goal state.
+    }
+    
 
 }
